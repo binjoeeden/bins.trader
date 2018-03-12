@@ -1,0 +1,33 @@
+<settings>
+  <system>
+    <trading_mode>1</trading_mode>
+    <is_sep_table_by_month>0</is_sep_table_by_month>
+    <api_key></api_key>
+    <api_secret></api_secret>
+    <kko_msg>1</kko_msg>
+    <kko_alive_periodic_crcy>BTC</kko_alive_periodic_crcy>
+    <kko_alive_interval>1800</kko_alive_interval>
+  </system>
+  <bins_core>
+    <max_num_trade>3</max_num_trade>
+    <prc_list_size>500</prc_list_size>
+    <tick_time>1</tick_time>
+    <drop_rt>0.01</drop_rt>
+    <bid_rt>0.17</bid_rt>
+    <bid_max_rt>0.34</bid_max_rt>
+    <drop_mkt_bid>0.05</drop_mkt_bid>
+    <rise_rt>0.012</rise_rt>
+    <ask_rt>0.16</ask_rt>
+    <best_mkt_ask>0.045</best_mkt_ask>
+    <giveup_rt>0.009</giveup_rt>
+    <worst_mkt_ask>0.013</worst_mkt_ask>
+    <fee_rate>0.0015</fee_rate>
+    <XRP_bid_amount>1000</XRP_bid_amount>
+    <BTC_bid_amount>0.1</BTC_bid_amount>
+    <BTC_round_num>3</BTC_round_num>
+    <XRP_round_num>-1</XRP_round_num>
+  </bins_core>
+  <deleted>
+    <bid_drop_rt_adj_unit>0.005</bid_drop_rt_adj_unit>
+  </deleted>
+</settings>
