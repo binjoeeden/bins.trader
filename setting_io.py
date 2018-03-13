@@ -26,7 +26,7 @@ class Settings:
             data = {}
             for item in parent.iter():
                 try:
-                    if item.tag.find("api_")>=0 or (item.tag in ("kko_id", "kko_passwd", "kko_alive_periodic_crcy")):
+                    if item.tag.find("api_")>=0 or (item.tag in ("kko_alive_periodic_crcy")):
                         data[item.tag] = item.text
                     else:
                         data[item.tag] = float(item.text)

@@ -20,7 +20,8 @@ class BINS_RUNNER(threading.Thread):
         self.settings = getSettings()
         self.bins_trader = None
         self.tick_list = []
-        self.tick_time = self.settings['bins_core']['tick_time']
+        bins_core_tag = 'bins_core_'+self.crcy.lower()
+        self.tick_time = self.settings[bins_core_tag]['tick_time']
         if self.tick_time is None or self.tick_time<1:
             self.tick_time=1
         self.mutex = threading.Lock()

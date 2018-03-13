@@ -8,25 +8,60 @@
     <kko_alive_periodic_crcy>BTC</kko_alive_periodic_crcy>
     <kko_alive_interval>1800</kko_alive_interval>
   </system>
-  <bins_core>
+  <bins_core_btc>
+    <max_num_trade>4</max_num_trade>
+    <prc_list_size>500</prc_list_size>
+    <tick_time>1</tick_time>
+    <drop_rt>0.016</drop_rt>
+    <adj_drop_rt>0.0015</adj_drop_rt>
+    <bid_rt>0.2</bid_rt>
+    <bid_max_rt>0.35</bid_max_rt>
+    <drop_mkt_bid>0.05</drop_mkt_bid>
+    <rise_rt>0.02</rise_rt>
+    <ask_rt>0.21</ask_rt>
+    <best_mkt_ask>0.045</best_mkt_ask>
+    <giveup_rt>0.01</giveup_rt>
+    <worst_mkt_ask>0.013</worst_mkt_ask>
+    <fee_rate>0.0015</fee_rate>
+    <bid_amount>0.09</bid_amount>
+    <round_num>3</round_num>
+    <bid_wait_max_sec>30</bid_wait_max_sec>
+  </bins_core_btc>
+  <bins_core_btc_bak>
     <max_num_trade>3</max_num_trade>
     <prc_list_size>500</prc_list_size>
     <tick_time>1</tick_time>
-    <drop_rt>0.01</drop_rt>
-    <bid_rt>0.17</bid_rt>
-    <bid_max_rt>0.34</bid_max_rt>
+    <drop_rt>0.016</drop_rt>
+    <bid_rt>0.2</bid_rt>
+    <bid_max_rt>0.35</bid_max_rt>
     <drop_mkt_bid>0.05</drop_mkt_bid>
-    <rise_rt>0.012</rise_rt>
-    <ask_rt>0.16</ask_rt>
+    <rise_rt>0.02</rise_rt>
+    <ask_rt>0.21</ask_rt>
     <best_mkt_ask>0.045</best_mkt_ask>
-    <giveup_rt>0.009</giveup_rt>
+    <giveup_rt>0.01</giveup_rt>
     <worst_mkt_ask>0.013</worst_mkt_ask>
     <fee_rate>0.0015</fee_rate>
-    <XRP_bid_amount>1000</XRP_bid_amount>
-    <BTC_bid_amount>0.1</BTC_bid_amount>
-    <BTC_round_num>3</BTC_round_num>
-    <XRP_round_num>-1</XRP_round_num>
-  </bins_core>
+    <bid_amount>0.1</bid_amount>
+    <round_num>3</round_num>
+    <bid_wait_max_sec>120</bid_wait_max_sec>
+  </bins_core_btc_bak>
+  <bins_core_xrp>
+    <max_num_trade>2</max_num_trade>
+    <prc_list_size>500</prc_list_size>
+    <tick_time>1</tick_time>
+    <drop_rt>0.01</drop_rt>
+    <bid_rt>0.2</bid_rt>
+    <bid_max_rt>0.34</bid_max_rt>
+    <drop_mkt_bid>0.05</drop_mkt_bid>
+    <rise_rt>0.01</rise_rt>
+    <ask_rt>0.2</ask_rt>
+    <best_mkt_ask>0.045</best_mkt_ask>
+    <giveup_rt>0.007</giveup_rt>
+    <worst_mkt_ask>0.011</worst_mkt_ask>
+    <fee_rate>0.0015</fee_rate>
+    <bid_amount>800</bid_amount>
+    <round_num>0</round_num>
+  </bins_core_xrp>
   <deleted>
     <bid_drop_rt_adj_unit>0.005</bid_drop_rt_adj_unit>
   </deleted>
