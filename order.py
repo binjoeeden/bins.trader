@@ -60,7 +60,7 @@ class Bithumb_Order:
                 self.rgParams['type']='ask'
             result = self.api.xcoinApiCall(order_post
                                             , self.rgParams);
-            print(result)
+        print("order result:"+str(result))
         return result
     def cancel_order(self, order_id, bidask):
         if bidask == BID:

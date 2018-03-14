@@ -484,9 +484,9 @@ class BINS_TRADER_CORE(threading.Thread):
                                 complete_fee = 0
                                 tr_ts_max = 0
                                 for each_cont in conts:
-                                    complete_amount += float(res_resell['units'])
-                                    complete_fee += float(res_resell['fee'])
-                                    complete_krw += int(res_resell['total'])
+                                    complete_amount += float(each_cont['units'])
+                                    complete_fee += float(each_cont['fee'])
+                                    complete_krw += int(each_cont['total'])
                                 each_bid['ask_result_amount'] += complete_amount
                                 each_bid['bid_result_amount'] -= complete_amount
                                 each_bid['ask_fee'] += order['complete_fee']

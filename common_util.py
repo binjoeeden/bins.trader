@@ -103,3 +103,7 @@ def get_weekday_string(weekday):
     elif weekday==6:
         return "Sun"
     return "week:"+str(weekday)
+
+def ceil(a, b):
+    d = int((a* (10**b)))/(10**b)
+    return d
