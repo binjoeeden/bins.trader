@@ -73,6 +73,74 @@ class BINS_TRADER_CORE(threading.Thread):
         else:
             self.kko_sender = None
 
+        self.resume()
+
+    def resume(self):
+        resume_query = """SELECT b.*, o.*
+                    FROM bins_trade_list as b, order_history as o
+                    WHERE b.bid_order_id = o.order_id and (b.ask_order_id = '') and
+                        ts_bid not in
+                            (SELECT bb.ts_bid FROM bins_trade_list as bb,
+                                                   order_history as oo
+                                              WHERE bb.ask_order_id = oo.order_id)"""
+        self.db.addqueue((resume_query, (), self.resume_callback))
+        sleep(3)
+
+    def resume_callback(self, result):
+        for e in result:
+            print("field len  :"+ str(len(e)))
+            new_token={}
+            new_token['crcy'] = e[0]
+            if e[1]=='BID_WAIT':
+                new_token['stage']= PHASE_1
+            elif e[1]=='PHASE_1':
+                new_token['stage']= PHASE_1
+            elif e[1]=='PHASE_2':
+                new_token['stage']= PHASE_2
+            elif e[1]=='BAD_ASK_WAIT':
+                new_token['stage']= PHASE_END
+            elif e[1]=='GOOD_ASK_WAIT':
+                new_token['stage']= PHASE_END
+            elif e[1]=='PHASE_END':
+                new_token['stage']= PHASE_END
+            else:
+                print("stage error !!!!!! :"+e[1])
+            new_token['ask_result_amount'] = e[2]
+            new_token['bid_result_amount'] = e[3]
+            new_token['bid_amount'] = e[4]
+            new_token['ts_bid'] = e[5]
+            new_token['bid_prc'] = e[6]
+            new_token['bid_order_id'] = e[7]
+            new_token['ts_ask'] = e[8]
+            new_token['ask_prc'] = e[9]
+            new_token['ask_order_id'] = e[10]
+            new_token['r1_max_ts'] = e[11]
+            new_token['r1_max_prc'] = e[12]
+            new_token['r_min_ts'] = e[13]
+            new_token['r_min_prc'] = e[14]
+            new_token['r2_max_ts'] = e[15]
+            new_token['r2_max_prc'] = e[16]
+            new_token['giveup_rt_cfg'] = e[17]
+            new_token['giveup_rt'] = e[18]
+            new_token['drop_rt_cfg'] = e[19]
+            new_token['drop_rt'] = e[20]
+            new_token['bid_rt_cfg'] = e[21]
+            new_token['bid_rt'] = e[22]
+            new_token['rise_rt_cfg'] = e[23]
+            new_token['rise_rt'] = e[24]
+            new_token['ask_rt_cfg'] = e[25]
+            new_token['ask_rt'] = e[26]
+            new_token['profit_loss'] = e[27]
+            new_token['profit_loss_rt'] = e[28]
+            new_token['bid_order_id'] = e[29]
+            new_token['bid_result_amount'] = e[34]-e[39]
+            new_token['bid_krw'] = e[36]
+            new_token['total_bid_cnt'] = e[41]
+            new_token['total_good_cnt'] = e[42]
+            new_token['total_bad_cnt'] = e[43]
+            print("RESUME:: added to trading list --> "+str(new_token))
+            self.trading_list.append(new_token)
+
     def get_dbfield(self, token, idx_field, field_type=INT):
         if len(token)<=idx_field or token[idx_field] is None:
             if field_type==TEXT:
@@ -307,6 +375,7 @@ class BINS_TRADER_CORE(threading.Thread):
         new_token['bid_rt'] = (curr_prc/new_token['r_min_prc'] -1)/drop_rt # TBD : curr_prc대신 실제 bid 주문체결된 가격 기준으로 변경 필요
         new_token['rise_rt_cfg'] = self.rise_rt
         new_token['ask_rt_cfg'] = self.ask_rt
+
         if self.order is not None :
             print("request bid order !!!"+str(self.bid_amount)+", prc:"+str(curr_prc))
             result = self.order.req_order(BID, self.bid_amount,
@@ -358,13 +427,12 @@ class BINS_TRADER_CORE(threading.Thread):
 
     def get_trading_cnt_with_stage(self, o_type):
         count = 0
-        first_bid = None
+        last_bid = None
         for i in self.trading_list:
             if i['stage'] == o_type:
-                if first_bid is None:
-                    first_bid = i
+                last_bid = i
                 count+=1
-        return (count, first_bid)
+        return (count, last_bid)
     def get_current_trading_count(self):
         cnt = 0
         for e in self.trading_list:
@@ -391,7 +459,7 @@ class BINS_TRADER_CORE(threading.Thread):
                 bidask_str = "ASK"
                 stage = 'PHASE_BAD_ASK_WAIT'
                 result_stage = 'BAD_ASK_END'
-                amount = each_bid['bid_result_amount']
+                amount = each_bid['ask_result_amount']
                 print("checking order bad ask waiting (o_id, ask ts, ask prc): "+str(order_id)+str(each_bid['ts_ask'])+", "+str(each_bid['ask_prc']))
             elif each_bid['stage']==PHASE_GOOD_ASK_WAIT:
                 order_id = each_bid['ask_order_id']
@@ -399,7 +467,7 @@ class BINS_TRADER_CORE(threading.Thread):
                 bidask_str = "ASK"
                 stage = 'PHASE_GOOD_ASK_WAIT'
                 result_stage = 'GOOD_ASK_END'
-                amount = each_bid['bid_result_amount']
+                amount = each_bid['ask_remain_amount']
                 print("checking order good ask waiting (o_id, ask ts, ask prc): "+str(order_id)+str(each_bid['ts_ask'])+", "+str(each_bid['ask_prc']))
             else:
                 continue
@@ -414,7 +482,8 @@ class BINS_TRADER_CORE(threading.Thread):
                 each_bid['bid_krw'] = order['complete_krw']
                 each_bid['bid_fee'] = order['complete_fee']
                 bid_result = float(order['complete_amount']-order['complete_fee'])
-                each_bid['bid_result_amount'] = bid_result
+                each_bid['bid_result_amount'] = ceil(bid_result, self.round_num)
+                each_bid['ask_remain_amount'] = each_bid['bid_result_amount']
                 if bid_result!=0:
                     (each_bid['amount_1'], each_bid['amount_2']) \
                     = bid_result.as_integer_ratio()
@@ -447,7 +516,7 @@ class BINS_TRADER_CORE(threading.Thread):
                     next_giveup_prc = (1-self.worst_mkt_ask)*each_bid['bid_prc']
                     if curr_prc < next_giveup_prc:
                         each_bid['ask_result_amount'] = order['complete_amount']
-                        each_bid['bid_result_amount'] -= order['complete_amount']
+                        each_bid['ask_remain_amount'] = each_bid['bid_result_amount'] - order['complete_amount']
                         each_bid['ask_fee'] = order['complete_fee']
                         each_bid['ask_krw'] = order['complete_krw']
 
@@ -455,8 +524,7 @@ class BINS_TRADER_CORE(threading.Thread):
                         if cancel_result['status']=='0000':
                             # if only cancel previous order success,
                             ## reorder market_sell
-                            ask_amount = ceil(each_bid['bid_result_amount'], self.round_num)
-                            each_bid['bid_result_amount'] = ask_amount
+                            ask_amount = each_bid['ask_remain_amount']
                             res_resell = self.order.req_order(ASK,
                                                             ask_amount,
                                                             curr_prc, True)
@@ -488,7 +556,7 @@ class BINS_TRADER_CORE(threading.Thread):
                                     complete_fee += float(each_cont['fee'])
                                     complete_krw += int(each_cont['total'])
                                 each_bid['ask_result_amount'] += complete_amount
-                                each_bid['bid_result_amount'] -= complete_amount
+                                each_bid['ask_remain_amount'] -= complete_amount
                                 each_bid['ask_fee'] += order['complete_fee']
                                 each_bid['ask_krw'] += complete_krw
                                 ask_prc = each_bid['ask_krw']/each_bid['ask_result_amount']
@@ -514,7 +582,7 @@ class BINS_TRADER_CORE(threading.Thread):
                             # back to Phase 1
                             each_bid['stage'] = PHASE_1
                             each_bid['ask_result_amount'] = order['complete_amount']
-                            each_bid['bid_result_amount'] -= order['complete_amount']
+                            each_bid['ask_remain_amount'] = each_bid['bid_result_amount'] - order['complete_amount']
                             each_bid['ask_fee'] = order['complete_fee']
                             each_bid['ask_krw'] = order['complete_krw']
                             order['result'] = True
@@ -715,13 +783,11 @@ class BINS_TRADER_CORE(threading.Thread):
 
                 deviation = last_max[IDX_PRC] - core_token[IDX_PRC]
                 drop_rt = deviation/last_max[IDX_PRC]
-                (t_cnt, b) = self.get_trading_cnt_with_stage(PHASE_1)
-                adj_drop_rt = self.drop_rt+(self.adj_drop_rt*t_cnt)
-                if drop_rt>=adj_drop_rt:
+                if drop_rt>=self.drop_rt:
                     print("insert r_min : "+str(core_token))
                     self.last_cand_r_min=core_token
                 else:
-                    print("skip r-min : "+str(core_token[IDX_PRC])+", r-max:"+str(last_max[IDX_PRC])+", drop_rt : "+str(drop_rt)+", cfg : "+str(adj_drop_rt))
+                    print("skip r-min : "+str(core_token[IDX_PRC])+", r-max:"+str(last_max[IDX_PRC])+", drop_rt : "+str(drop_rt)+", cfg : "+str(self.drop_rt))
                     return
 
         #exist_waiting_order = self.handle_waiting_order()
@@ -731,7 +797,6 @@ class BINS_TRADER_CORE(threading.Thread):
         for each_bid in self.trading_list:
             bid_prc = each_bid['bid_prc']
             if each_bid['stage']>=PHASE_1:
-                each_bid['bid_result_amount'] = each_bid['amount_1']/each_bid['amount_2']
                 print("check update bid start - bid_ts:"+str(each_bid['ts_bid'])+", stage : "+str(each_bid['stage']))
 
             if each_bid['stage']==PHASE_1:
@@ -746,7 +811,8 @@ class BINS_TRADER_CORE(threading.Thread):
                     each_bid['ts_ask'] = curr_ts
 
                     if self.order is not None:
-                        ask_amount = ceil(each_bid['bid_result_amount'], self.round_num)
+
+                        ask_amount = each_bid['bid_result_amount']
                         result = self.order.req_order(ASK,
                                                         ask_amount,
                                                         curr_prc)
@@ -899,11 +965,16 @@ class BINS_TRADER_CORE(threading.Thread):
                     self.last_cand_r_min = None
                     return
 
-                if curr_prc >= min_val[IDX_PRC] * (1+bid_rt):
+                (p1_cnt, p1_last) = self.get_trading_cnt_with_stage(PHASE_1)
+                if p1_cnt>0:
+                    last_bid_prc = p1_last['bid_prc']
+                    second_thres = last_bid_prc *(1-self.adj_drop_rt)
+                else:
+                    second_thres = curr_prc
+
+                if curr_prc >= min_val[IDX_PRC] * (1+bid_rt) and curr_prc <= second_thres:
                     print("try bid condition! "+str(curr_ts)+", "+str(curr_ts))
                     # self.drop_adjusted = False
-                    if self.first_bid_ts==0:
-                        self.first_bid_ts=curr_ts
                     is_market_bid = False
                     if drop_rt>self.drop_mkt_bid:
                         print("market bid condition")

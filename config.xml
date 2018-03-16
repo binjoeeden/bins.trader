@@ -9,17 +9,17 @@
     <kko_alive_interval>1800</kko_alive_interval>
   </system>
   <bins_core_btc>
-    <max_num_trade>4</max_num_trade>
+    <max_num_trade>5</max_num_trade>
     <prc_list_size>500</prc_list_size>
     <tick_time>1</tick_time>
-    <drop_rt>0.016</drop_rt>
-    <adj_drop_rt>0.0015</adj_drop_rt>
-    <bid_rt>0.2</bid_rt>
+    <drop_rt>0.017</drop_rt>
+    <adj_drop_rt>0.01</adj_drop_rt>
+    <bid_rt>0.16</bid_rt>
     <bid_max_rt>0.35</bid_max_rt>
     <drop_mkt_bid>0.05</drop_mkt_bid>
-    <rise_rt>0.02</rise_rt>
-    <ask_rt>0.21</ask_rt>
-    <best_mkt_ask>0.045</best_mkt_ask>
+    <rise_rt>0.021</rise_rt>
+    <ask_rt>0.20</ask_rt>
+    <best_mkt_ask>0.06</best_mkt_ask>
     <giveup_rt>0.01</giveup_rt>
     <worst_mkt_ask>0.013</worst_mkt_ask>
     <fee_rate>0.0015</fee_rate>
