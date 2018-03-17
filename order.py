@@ -74,6 +74,11 @@ class Bithumb_Order:
                                         rgParams);
         return result
     def check_is_complete_order(self, order_id, bidask, total_amount):
+        if total_amount<min_units[self.crcy]:
+            chck_item={'result':True,
+                        'status':'0000'}
+            return chck_item
+
         if bidask == BID:
             bs_type = "bid"
         else:

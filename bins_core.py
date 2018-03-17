@@ -76,17 +76,18 @@ class BINS_TRADER_CORE(threading.Thread):
         self.resume()
 
     def resume(self):
-        resume_query = """SELECT b.*, o.*
-                    FROM bins_trade_list as b, order_history as o
-                    WHERE b.bid_order_id = o.order_id and (b.ask_order_id = '') and
-                        ts_bid not in
-                            (SELECT bb.ts_bid FROM bins_trade_list as bb,
-                                                   order_history as oo
-                                              WHERE bb.ask_order_id = oo.order_id)"""
+        resume_query = """SELECT b.*, o.* from bins_trade_list as b,
+                                                (select crcy as c, ts_bid as t
+                                                        from bins_trade_list
+                                                        where c==crcy and ask_order_id !=''),
+                                                order_history as o
+					     where ts_bid != t and b.bid_order_id = o.order_id """
         self.db.addqueue((resume_query, (), self.resume_callback))
         sleep(3)
 
     def resume_callback(self, result):
+        if len(result)==0:
+            print('there is no trading bid to resume.')
         for e in result:
             print("field len  :"+ str(len(e)))
             new_token={}
@@ -459,7 +460,7 @@ class BINS_TRADER_CORE(threading.Thread):
                 bidask_str = "ASK"
                 stage = 'PHASE_BAD_ASK_WAIT'
                 result_stage = 'BAD_ASK_END'
-                amount = each_bid['ask_result_amount']
+                amount = each_bid['bid_result_amount']
                 print("checking order bad ask waiting (o_id, ask ts, ask prc): "+str(order_id)+str(each_bid['ts_ask'])+", "+str(each_bid['ask_prc']))
             elif each_bid['stage']==PHASE_GOOD_ASK_WAIT:
                 order_id = each_bid['ask_order_id']
@@ -467,7 +468,7 @@ class BINS_TRADER_CORE(threading.Thread):
                 bidask_str = "ASK"
                 stage = 'PHASE_GOOD_ASK_WAIT'
                 result_stage = 'GOOD_ASK_END'
-                amount = each_bid['ask_remain_amount']
+                amount = each_bid['bid_result_amount']
                 print("checking order good ask waiting (o_id, ask ts, ask prc): "+str(order_id)+str(each_bid['ts_ask'])+", "+str(each_bid['ask_prc']))
             else:
                 continue
