@@ -76,12 +76,14 @@ class BINS_TRADER_CORE(threading.Thread):
         self.resume()
 
     def resume(self):
-        resume_query = """SELECT b.*, o.* from bins_trade_list as b,
-                                                (select crcy as c, ts_bid as t
-                                                        from bins_trade_list
-                                                        where c==crcy and ask_order_id !=''),
+        resume_query = """SELECT b.*, o.*  from bins_trade_list as b,
                                                 order_history as o
-					     where ts_bid != t and b.bid_order_id = o.order_id """
+                            where (bid_order_id = order_id
+                                    or ask_order_id = order_id)
+                                   and ts_bid not in
+                                   (select ts_bid from bins_trade_list as b2
+                                    where b2.stage='PHASE_END'
+                                            or ask_order_id!='') """
         self.db.addqueue((resume_query, (), self.resume_callback))
         sleep(3)
 

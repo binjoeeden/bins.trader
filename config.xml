@@ -13,15 +13,15 @@
     <prc_list_size>500</prc_list_size>
     <tick_time>1</tick_time>
     <drop_rt>0.017</drop_rt>
-    <adj_drop_rt>0.01</adj_drop_rt>
-    <bid_rt>0.16</bid_rt>
+    <adj_drop_rt>0.02</adj_drop_rt>
+    <bid_rt>0.05</bid_rt>
     <bid_max_rt>0.35</bid_max_rt>
     <drop_mkt_bid>0.05</drop_mkt_bid>
     <rise_rt>0.021</rise_rt>
     <ask_rt>0.20</ask_rt>
     <best_mkt_ask>0.06</best_mkt_ask>
-    <giveup_rt>0.01</giveup_rt>
-    <worst_mkt_ask>0.013</worst_mkt_ask>
+    <giveup_rt>0.008</giveup_rt>
+    <worst_mkt_ask>0.012</worst_mkt_ask>
     <fee_rate>0.0015</fee_rate>
     <bid_amount>0.09</bid_amount>
     <round_num>3</round_num>
